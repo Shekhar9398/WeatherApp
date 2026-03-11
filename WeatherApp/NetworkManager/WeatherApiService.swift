@@ -18,17 +18,17 @@ enum Cities: String {
 
 class WeatherApiService {
     let baseUrl = "https://api.weatherapi.com/v1"
-    let key = "?key=" + "16e05ecc5d6645829d561707252104"
     var endpoint = ""
     var q = "&q="
     var d = "&days="
     var url = ""
-    
+
     init(){
         setUrl(endpoint: .current, location: .pune, days: .sevenDays)
     }
-    
+
     func setUrl(endpoint: Endpoint, location: Cities, days: Days) {
+        let key = "?key=" + ApiConfig.weatherApiKey
         url = baseUrl + endpoint.rawValue + key + q + location.rawValue + d + days.rawValue
     }
 }

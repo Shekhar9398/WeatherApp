@@ -3,12 +3,64 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var viewModel = WeatherViewModel()
     @State private var isDay: Bool = false
-    
+
     var body: some View {
         GeometryReader { geometry in
             VStack {
-                // Top Weather Summary
-                if let weather = viewModel.foreCastResponse {
+                // City Selector
+                Menu {
+                    ForEach([Cities.pune, Cities.mumbai], id: \.self) { city in
+                        Button(action: {
+                            viewModel.fetchForecastWeather(city: city)
+                        }) {
+                            Text(city.rawValue)
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text(viewModel.selectedCity.rawValue)
+                            .font(MyFont.futura.size(18))
+                            .foregroundColor(.white)
+                        Image(systemName: "chevron.down")
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.white.opacity(0.2))
+                    .cornerRadius(8)
+                }
+                .padding()
+
+                // Error Message
+                if let errorMessage = viewModel.errorMessage {
+                    VStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 40))
+                            .foregroundColor(.red)
+                        Text("Error")
+                            .font(MyFont.futura.size(20))
+                            .foregroundColor(.white)
+                        Text(errorMessage)
+                            .font(MyFont.futura.size(16))
+                            .foregroundColor(.white.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                        Button(action: {
+                            viewModel.fetchForecastWeather(city: viewModel.selectedCity)
+                        }) {
+                            Text("Retry")
+                                .font(MyFont.futura.size(16))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 8)
+                                .background(Color.white.opacity(0.2))
+                                .cornerRadius(8)
+                        }
+                        .padding(.top, 16)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    Spacer()
+                } else if let weather = viewModel.foreCastResponse {
                     ZStack {
                         if isDay {
                             LottieView(animationName: "sun3D")
@@ -161,7 +213,7 @@ struct ContentView: View {
                     .ignoresSafeArea()
             )
             .onAppear {
-                viewModel.fetchForecastWeather(city: .pune)
+                viewModel.fetchForecastWeather(city: viewModel.selectedCity)
             }
         }
     }
